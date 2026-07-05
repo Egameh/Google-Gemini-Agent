@@ -487,7 +487,7 @@ Now use reply_email with the first email found."""
 
 # If Agent 1 found emails and user wants to reply, run Agent 2
 if __name__ == "__main__":
-    test_query = "Can you create a reminder to my calendar for tomorrow at 1 AM called 'Review Notes'."
+    test_query = ""
     result_1 = agent_1(test_query)
     if isinstance(result_1, dict) and result_1.get("status") == "reply_requested":
         print("\n➡️  Running reply agent...\n")
