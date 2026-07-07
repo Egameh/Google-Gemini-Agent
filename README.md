@@ -144,4 +144,4 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 ## Author
 
 **Egameh Omokagbo** — Data Scientist | Process Engineer  
-[LinkedIn](https://www.linkedin.com/in/egameh) | [GitHub](https://github.com/Egameh)
+[LinkedIn](https://www.linkedin.com/in/egameh)
