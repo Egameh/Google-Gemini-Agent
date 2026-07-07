@@ -111,8 +111,6 @@ echo "SENDER_EMAIL=your_email@gmail.com" >> .env
 uvicorn main:app --reload
 ```
 
-Visit `http://127.0.0.1:8000/docs` for the interactive API UI.
-
 ---
 
 ## Deployment (AWS EC2)
