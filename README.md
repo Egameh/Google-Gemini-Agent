@@ -131,7 +131,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 ---
 
-## What This Demonstrates
+## Goals
 
 - **Agentic system design** — multi-agent architecture with intent routing, tool dispatch, and multi-turn reasoning loops
 - **Production deployment** — live REST API on AWS EC2, accessible via HTTP from anywhere
