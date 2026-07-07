@@ -19,7 +19,7 @@ SCOPES = [
 
 port = 465 # For SSL
 smtp_server = "smtp.gmail.com"
-sender_email = "egmh998@gmail.com"
+sender_email = os.getenv("SENDER_EMAIL")
 password = os.getenv("GMAIL_APP_PASSWORD")
 if not password:
     raise ValueError("password not set in environment")
