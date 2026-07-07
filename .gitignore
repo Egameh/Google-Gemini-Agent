@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-credentials.json token.pickle.env
-=======
 credentials.json
 token.pickle
 .env
->>>>>>> 172014a458b943d60c258bbd75fbfa58f8a2ef2d
 google_agent_key.pem
 .DS_Store
