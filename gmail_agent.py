@@ -69,23 +69,24 @@ def get_emails():
     for messages in results.get("messages", []):
         msg = g_service.users().messages().get(
             userId="me",
-            id=messages["id"],
-            format="metadata",
-            metadataHeaders = ["From", "Subject", "Date"]
+            id=messages["id"]
         ).execute()
         headers = {h["name"]: h["value"] for h in msg["payload"]["headers"]}
         emails.append({
             "from": headers.get("From"),
             "subject": headers.get("Subject"),
-            "date": headers.get("Date"),})
+            "date": headers.get("Date"),
+            "snippet": msg.get("snippet")
+            })
     if not emails:
         return "No emails found."
     output = []
     for i, email in enumerate(emails, 1):
         output.append(
-            f"{i}. {email['subject']}\n"
+            f"{i}. Subject: {email['subject']}\n"
             f"   From: {email['from']}\n"
             f"   Date: {email['date']}\n"
+            f"   Preview: {email['snippet']}\n "
         )     
     return "\n".join(output)
 
@@ -269,7 +270,8 @@ def agent_1(query):
   "tools": [
     { "tool": "send_email", "arguments": {...} },
     { "tool": "search_email", "arguments": {...} }
-    ]
+    ],
+    "summary": "Optional summary here if tool list is empty"
     }
 
     Tool Rules: 
@@ -282,6 +284,7 @@ def agent_1(query):
 
     2. view_emails
     - arguments must be {}
+    - If the tool 'view_emails' returns a list of emails and previews, use that information to write a clear, concise summary of the most important items requiring attention (e.g., "Irene emailed you about X", "A recruiter reached out about Y"). After summarizing, return {"tools":[]} to finish.
 
     3. view_calendar
     - arguments must be {}
@@ -343,7 +346,7 @@ def agent_1(query):
         iterations = 0
         max_iterations = 5
         
-        while tool_name not in ["send_email", "create_event", "view_emails", "view_calendar"]:
+        while tool_name not in ["send_email", "create_event", "view_calendar"]:
             if iterations >= max_iterations:
                 return "Error: Exceeded maximum tool iterations."
             iterations += 1
@@ -364,11 +367,7 @@ Rules:
                 f"""Tool executed: {tool_name}
 Result: {tool_result}
 
-Based on this result, decide the next tool.
-
-Rules:
-- If no further tools are needed, return: {{"tools":[]}}
-- Output only JSON""",
+RUlE: Decide the next tool or provide your final summary response in the 'summary' field""",
                 config={"response_mime_type": "application/json"}
             )
             
@@ -376,25 +375,30 @@ Rules:
                 "role": "assistant",
                 "content": response.text
             })
+            try:
+                data = json.loads(response.text)
+                next_tool = data.get("tools", [])
+
+                if "summary" in data and data["summary"]:
+                    return data["summary"]
+                
+                if not next_tool:
+                    if isinstance(data, dict) and not data.get("tools"):
+                        return data.get("summary", response.text)
+                    break
             
-            print(response.text)
-            data = json.loads(response.text)
-            next_tool = data.get("tools", [])
-            
-            if not next_tool:
-                break
-            
-            t = next_tool[0]
-            tool_name = t["tool"]
-            arguments = t["arguments"]
-            if tool_name not in TOOLS_AGENT_1:
-                return f"unknown tool: {tool_name}"
-            tool = TOOLS_AGENT_1[tool_name]
-            tool_result = tool(arguments)
-            
-            if tool_name == "search_email":
-                search_results = tool_result
-        
+                t = next_tool[0]
+                tool_name = t["tool"]
+                arguments = t["arguments"]
+                if tool_name not in TOOLS_AGENT_1:
+                    return f"unknown tool: {tool_name}"
+                tool = TOOLS_AGENT_1[tool_name]
+                tool_result = tool(arguments)
+                
+                if tool_name == "search_email":
+                    search_results = tool_result
+            except json.JSONDecodeError:
+                return response.text
         # Ask user if they want to reply
         if search_results and search_results != "No emails found.":
             print(f"\n📧 Found emails: {search_results}\n")
