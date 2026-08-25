@@ -6,7 +6,7 @@ A production-deployed, multi-agent AI assistant that manages Gmail and Google Ca
 
 ## What It Does
 
-Send a plain-English request — the agent classifies your intent, selects the right tool, calls the appropriate Google API, and returns a result. No UI needed; the interface is the API.
+Send a plain-English request. The agent classifies your intent, selects the right tool, calls the appropriate Google API, and returns a result. No UI needed; the interface is the API.
 
 **Supported actions:**
 - View recent inbox emails
