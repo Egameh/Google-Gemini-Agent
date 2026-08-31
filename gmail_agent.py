@@ -10,6 +10,7 @@ import json
 from google import genai
 import os
 import re
+import requests
 #-----------------------------Definitions -----------------------------
 client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 SCOPES = [
@@ -20,6 +21,7 @@ SCOPES = [
 port = 465 # For SSL
 smtp_server = "smtp.gmail.com"
 sender_email = os.getenv("SENDER_EMAIL")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 password = os.getenv("GMAIL_APP_PASSWORD")
 if not password:
     raise ValueError("password not set in environment")
@@ -211,6 +213,21 @@ def make_new_event(event_details):
     except Exception as e:
         print(f"Error generating event: {e}")
 
+#-----------------------------Web Search Functions -----------------------------
+def search_web(arguments):
+    query = arguments["query"]
+    resp = requests.post("https://api.tavily.com/search",
+                        json={"api_key": TAVILY_API_KEY, "query":query, "max_results": 5}
+                        )
+    resp.raise_for_status()
+    results = resp.json().get("results", [])
+    if not results:
+        return "No results found."
+    output = []
+    for r in results:
+        output.append(f"- {r.get('title','')}: {r.get('content','')[:200]}... ({r.get('url','')})")
+    return "\n".join(output)
+           
 #-----------------------------Agent Tools --------------------------
 def send_email_tool(arguments):
     send_email(
@@ -237,7 +254,9 @@ def reply_email_tool(arguments):
     if "message_id" not in arguments:
         return "Error: message_id is required."
     return reply_email(arguments)
-
+def search_web_tool(arguments):
+    return search_web(arguments)
+    
 # AGENT 1 TOOLS (search, calendar, send email - NO reply)
 TOOLS_AGENT_1 = {
     "send_email": send_email_tool,
@@ -245,6 +264,7 @@ TOOLS_AGENT_1 = {
     "view_calendar": view_calendar_tool,
     "create_event": create_event_tool,
     "search_email": search_email_tool,
+    "search_web": search_web_tool,
 }
 
 # AGENT 2 TOOLS (reply only)
@@ -264,6 +284,7 @@ def agent_1(query):
     - view_calendar
     - create_event
     - search_email
+    - search_web
     
     Return format:
     {
@@ -301,6 +322,11 @@ def agent_1(query):
     "emails from John" → "from:john"
     "unread emails" → "is:unread"
     "Amazon emails" → "Amazon"
+
+    6. search_web:
+    - Must include: query
+    - Use this when the user asks about current events, facts, prices, or anything not in emails/calendar (e.g. "what's the weather", "who won the match", "look up X")
+
 
     General rules:
     - You may call tools in sequence when required
