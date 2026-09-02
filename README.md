@@ -1,6 +1,6 @@
 # Gemini Agentic Assistant
 
-A production-deployed, multi-agent AI assistant that manages Gmail and Google Calendar through natural language. Built with a tool-dispatch architecture, served via FastAPI, and hosted on AWS EC2.
+A production-deployed, multi-agent AI assistant that manages Gmail, Google Calendar, and Web browsing through natural language. Built with a tool-dispatch architecture, served via FastAPI, and hosted on AWS EC2.
 
 ---
 
@@ -11,6 +11,7 @@ Send a plain-English request. The agent classifies your intent, selects the righ
 **Supported actions:**
 - View recent inbox emails
 - Search emails by sender, keyword, or label
+- Search the web
 - Send emails (AI-drafted from a brief)
 - Reply to emails
 - View upcoming calendar events
