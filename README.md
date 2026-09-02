@@ -53,7 +53,7 @@ User Request (HTTP POST)
 ```
 
 **Key design decisions:**
-- **Tool dispatch pattern**: tools registered in a dictionary (`TOOLS` dict), not hardcoded if/elif chains — adding a new capability requires one function, one dict entry, one prompt line
+- **Tool dispatch pattern**: tools registered in a dictionary (`TOOLS` dict), not hardcoded if/elif chains, adding a new capability requires one function, one dict entry, one prompt line
 - **Multi-turn reasoning loop**: Agent 1 can chain tools sequentially, feeding results from one tool as context for the next
 - **Structured JSON output**: all LLM responses use `response_mime_type: application/json` for reliable parsing
 - **Two-agent handoff**: email reply is delegated to a specialised Agent 2, keeping routing logic clean
@@ -144,5 +144,5 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 ## Author
 
-**Egameh Omokagbo** — Data Scientist | Process Engineer  
+**Egameh Omokagbo** — AI Engineer 
 [LinkedIn](https://www.linkedin.com/in/egamehomokagbo)
